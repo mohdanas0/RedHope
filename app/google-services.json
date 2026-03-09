@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "622836582288",
+    "project_id": "redhope-43759",
+    "storage_bucket": "redhope-43759.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:622836582288:android:cf1474bb06b5db438f1515",
+        "android_client_info": {
+          "package_name": "com.example.redhope"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSsm2mMz0yrmS1L4s0s7ysAyRfrBhNNp8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
