@@ -11,12 +11,14 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.redhope.modal.ProfileUiState
 import com.example.redhope.util.CooldownWorker
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import com.google.firebase.Timestamp
 import java.util.concurrent.TimeUnit
 
 class ProfileViewModel(application: Application): AndroidViewModel(application) {
@@ -135,7 +137,10 @@ class ProfileViewModel(application: Application): AndroidViewModel(application) 
             if (latitude != null && longitude != null) {
                 updates["lat"] = latitude
                 updates["lng"] = longitude
+                updates["locationUpdatedAt"] = Timestamp.now()
+
             }
+
         } else {
             val currentTime = System.currentTimeMillis()
             updates["lastDisabledAt"] = currentTime
@@ -183,5 +188,21 @@ class ProfileViewModel(application: Application): AndroidViewModel(application) 
         WorkManager.getInstance(getApplication())
             .enqueue(workRequest)
     }
+
+//    fun updateLocation(latitude: Double, longitude: Double) {
+//
+//        val userId = auth.currentUser?.uid ?: return
+//
+//        FirebaseFirestore.getInstance()
+//            .collection("users")
+//            .document(userId)
+//            .update(
+//                mapOf(
+//                    "lat" to latitude,
+//                    "lng" to longitude,
+//                    "locationUpdatedAt" to Timestamp.now()
+//                )
+//            )
+//    }
 }
 

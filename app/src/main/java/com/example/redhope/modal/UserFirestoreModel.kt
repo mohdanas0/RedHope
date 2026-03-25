@@ -1,5 +1,7 @@
 package com.example.redhope.modal
 
+import com.google.firebase.Timestamp
+
 data class UserFirestoreModel(
     val uid: String = "",
     val fullName: String = "",
@@ -9,6 +11,7 @@ data class UserFirestoreModel(
     val phone: String = "",
     val isAvailable: Boolean = false,
     val lastDisabledAt: Long? = null,
+    val locationUpdatedAt: Timestamp? = null,
     val cooldownHours: Int = 6,
     val createdAt: Long = 0L,
     val lat: Double?=null,

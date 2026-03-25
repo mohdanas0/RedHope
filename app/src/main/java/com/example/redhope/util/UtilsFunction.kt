@@ -4,15 +4,16 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
-import androidx.work.R
+
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.redhope.modal.EligibilityForm
 import com.example.redhope.modal.EligibilityResult
+import com.google.firebase.Timestamp
+
 
 fun callPhoneNumber(context: Context, phoneNumber: String) {
     val intent = Intent(Intent.ACTION_DIAL).apply {
@@ -107,5 +108,16 @@ class CooldownWorker(
     }
 }
 
+fun getMinutesAgo(timestamp: Timestamp?): String {
+
+    if (timestamp == null) return "Unknown"
+
+    val now = System.currentTimeMillis()
+    val diff = now - timestamp.toDate().time
+
+    val minutes = diff / (1000 * 60)
+
+    return "$minutes minutes ago"
+}
 
 

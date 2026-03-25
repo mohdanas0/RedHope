@@ -52,6 +52,7 @@ import com.example.redhope.viewModel.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import androidx.compose.material3.*
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -65,15 +66,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontVariation.Settings
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.example.redhope.modal.FindDonorQuery
+import com.example.redhope.util.LocationForegroundService
 import com.example.redhope.util.openNearbyBloodBanks
+import com.example.redhope.viewModel.LocationViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 
 
 @Composable
 fun HomeScreen(
+    locationVM: LocationViewModel,
     onLogout: () -> Unit,
     onFindDonor: () -> Unit,
     onEmergencyClick: () -> Unit,
@@ -86,18 +96,16 @@ fun HomeScreen(
     val name = homeVM.userName.value
     val profileVM: ProfileViewModel = viewModel()
     val profileUiState by profileVM.uiState.collectAsState()
-    var showFindDonorBottomSheet by remember {
-        mutableStateOf(false)
-    }
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
 
     var showEligibilityPopup by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    val fusedLocationClient =
-        LocationServices.getFusedLocationProviderClient(context)
+
 
     fun isLocationEnabled(): Boolean {
         val locationManager =
@@ -108,35 +116,6 @@ fun HomeScreen(
 
     fun openLocationSettings() {
         context.startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-    }
-
-    @SuppressLint("MissingPermission")
-    fun getLocation() {
-            fusedLocationClient.getCurrentLocation(
-                Priority.PRIORITY_HIGH_ACCURACY,
-                null
-            ).addOnSuccessListener { location ->
-
-                if (location != null) {
-
-                    android.util.Log.d("LOCATION", "Lat: ${location.latitude}")
-
-                    profileVM.updateAvailability(
-                        value = true,
-                        latitude = location.latitude,
-                        longitude = location.longitude
-                    )
-
-                } else {
-                    Toast.makeText(
-                        context,
-                        "Unable to get location. Please turn on GPS.",
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                    android.util.Log.e("LOCATION", "Location is NULL — turn on GPS")
-                }
-            }
     }
 
     val permissionLauncher =
@@ -152,7 +131,7 @@ fun HomeScreen(
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    getLocation()
+                    locationVM.fetchLocation(context)
                 }
             } else {
                 Toast.makeText(
@@ -163,7 +142,62 @@ fun HomeScreen(
             }
         }
     LaunchedEffect(Unit) {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+
+            if (isLocationEnabled()) {
+                locationVM.fetchLocation(context)
+            } else {
+                coroutineScope.launch {
+
+                    val result = snackbarHostState.showSnackbar(
+                        message = "Turn on location to find donors",
+                        actionLabel = "Enable"
+                    )
+
+                    if (result == SnackbarResult.ActionPerformed) {
+                        openLocationSettings()
+                    }
+                }
+            }
+
+        } else {
+
+            permissionLauncher.launch(
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        }
+
         profileVM.loadProfile()
+    }
+
+    DisposableEffect(lifecycleOwner) {
+
+        val observer = LifecycleEventObserver { _, event ->
+
+            if (event == Lifecycle.Event.ON_RESUME) {
+
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+
+                    if (isLocationEnabled()) {
+                        locationVM.fetchLocation(context)
+                    }
+                }
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
 
@@ -219,6 +253,8 @@ fun HomeScreen(
 
                             } else {
                                 profileVM.updateAvailability(false,null,null)
+                                val intent = Intent(context, LocationForegroundService::class.java)
+                                context.stopService(intent)
                             }
 
                         }
@@ -380,7 +416,7 @@ fun HomeScreen(
                     return@EligibilityPopup
                 }
 
-                // ✅ GPS check
+
                 if (!isLocationEnabled()) {
                     openLocationSettings()
                     Toast.makeText(
@@ -391,9 +427,20 @@ fun HomeScreen(
                     return@EligibilityPopup
                 }
 
-                getLocation()
-                showEligibilityPopup = false
+                val location = locationVM.location.value
 
+                if (location != null) {
+
+                    profileVM.updateAvailability(
+                        value = true,
+                        latitude = location.first,
+                        longitude = location.second
+                    )
+                    val intent = Intent(context, LocationForegroundService::class.java)
+                    ContextCompat.startForegroundService(context, intent)
+
+                    showEligibilityPopup = false
+                }
             }
         )
     }
@@ -405,20 +452,20 @@ fun HomeScreen(
 
 
 
-
-@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-@Preview(showBackground = true)
-@Composable
-fun HomePreview(){
-    HomeScreen(onLogout = {
-
-    }, onFindDonor = {
-
-    }, onProfileClick = {
-
-    }, onHistoryClick = {
-
-    }, onEmergencyClick = {
-
-    })
-}
+//
+//@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+//@Preview(showBackground = true)
+//@Composable
+//fun HomePreview(){
+//    HomeScreen(onLogout = {
+//
+//    }, onFindDonor = {
+//
+//    }, onProfileClick = {
+//
+//    }, onHistoryClick = {
+//
+//    }, onEmergencyClick = {
+//
+//    })
+//}

@@ -62,7 +62,7 @@ fun EligibilityPopup(
             ) {
 
                 Text(
-                    text = "AI Eligibility Check",
+                    text = "Eligibility Check",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )

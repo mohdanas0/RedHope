@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,27 +45,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.redhope.common.BloodGroupDropdown
 import com.example.redhope.common.DonorCard
 import com.example.redhope.modal.FindDonorQuery
 import com.example.redhope.modal.FindDonorUiState
 import com.example.redhope.viewModel.FindDonorViewModel
+import com.example.redhope.viewModel.LocationViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FindDonorScreen(
-    onBack:() -> Unit
+    locationVM: LocationViewModel,
+    onBack: () -> Unit
 ) {
 
     val viewModel: FindDonorViewModel = viewModel()
+
+
     val uiState by viewModel.uiState.collectAsState()
+    val location by locationVM.location.collectAsState()
+
 
     val context = LocalContext.current
-    val fusedLocationClient =
-        LocationServices.getFusedLocationProviderClient(context)
 
     fun isLocationEnabled(): Boolean {
         val locationManager =
@@ -72,75 +81,22 @@ fun FindDonorScreen(
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
-    fun openLocationSettings() {
-        context.startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-    }
 
-    // 🔹 Get Location Function
-    @SuppressLint("MissingPermission")
-    fun getLocation() {
-        fusedLocationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            null
-        ).addOnSuccessListener { location ->
-            if(location!=null){
-                viewModel.setUserLocation(location.latitude, location.longitude)
-            }else{
-                if (!isLocationEnabled()) {
-                    openLocationSettings()
-                    Toast.makeText(
-                        context,
-                        "Please enable location to become available",
-                        Toast.LENGTH_LONG
-                    ).show()
 
-                }
-            }
+
+
+    LaunchedEffect(location) {
+        location?.let {
+            viewModel.setUserLocation(it.first, it.second)
         }
     }
 
-    // 🔹 Permission launcher
-    val permissionLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            if (granted) {
-                if (!isLocationEnabled()) {
-                    openLocationSettings()
-                    Toast.makeText(
-                        context,
-                        "Please enable location",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    getLocation()
-                }
-            } else {
-                Toast.makeText(
-                    context,
-                    "Location permission required",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-
-    // 🔹 Fetch location when screen opens
-    LaunchedEffect(Unit) {
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            getLocation()
-        } else {
-            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-    }
 
     val showEmptyMessage =
         uiState.selectedBloodGroup.isNotEmpty() &&
                 !uiState.isLoading &&
                 uiState.donors.isEmpty()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -168,29 +124,34 @@ fun FindDonorScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             BloodGroupDropdown(
                 selectedBloodGroup = uiState.selectedBloodGroup,
                 onSelected = { group ->
                     viewModel.updateBloodGroup(group)
                     viewModel.searchNearestDonors()
-                }
+                },
+                enabled = location != null
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
 
-            if (uiState.currentLat == null) {
-                Text("Getting your location...")
-                Spacer(modifier = Modifier.height(8.dp))
-                CircularProgressIndicator()
-            }
+            if (location == null) {
+                if (!isLocationEnabled()) {
+                        Text("Location is OFF. Please enable location from Home screen.")
+                } else {
 
+                    Text("Detecting your location...")
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    CircularProgressIndicator()
+                }
+            }
 
             if (uiState.isLoading) {
                 CircularProgressIndicator()
             }
-
 
             uiState.error?.let {
                 Text(
@@ -198,6 +159,7 @@ fun FindDonorScreen(
                     color = Color.Red
                 )
             }
+
             if (showEmptyMessage) {
                 Box(
                     modifier = Modifier
@@ -207,8 +169,7 @@ fun FindDonorScreen(
                 ) {
                     Text(
                         text = "No donors found for ${uiState.selectedBloodGroup}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
             }
@@ -225,9 +186,7 @@ fun FindDonorScreen(
             }
         }
     }
-
-
-    }
+}
 
 
 

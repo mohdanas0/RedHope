@@ -3,6 +3,7 @@ package com.example.redhope.Navigation
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -15,6 +16,7 @@ import com.example.redhope.ui.theme.ui.LoginScreen
 import com.example.redhope.ui.theme.ui.ProfileScreen
 import com.example.redhope.ui.theme.ui.SignUpScreen
 import com.example.redhope.ui.theme.ui.SplashScreen
+import com.example.redhope.viewModel.LocationViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 
@@ -47,10 +49,12 @@ sealed class Screen(val route: String){
 
 @Composable
 fun AppNavHost(navHostController: NavHostController){
+    val sharedLocationVM: LocationViewModel = viewModel()
     NavHost(
         navController = navHostController,
         startDestination = Screen.Splash.route
     ){
+
         composable(Screen.Splash.route) {
             SplashScreen(onNavigateToHome = {
                 navHostController.navigate(Screen.Home.route){
@@ -90,13 +94,18 @@ fun AppNavHost(navHostController: NavHostController){
         }
 
         composable(Screen.FindDonorScreen.route){
-               FindDonorScreen(onBack = {
+               FindDonorScreen(
+                   locationVM = sharedLocationVM,
+                   onBack = {
                    navHostController.popBackStack()
                })
         }
 
         composable(Screen.Home.route){
-            HomeScreen(onLogout = {
+
+            HomeScreen(
+                locationVM=sharedLocationVM,
+                onLogout = {
                 FirebaseAuth.getInstance().signOut()
                 navHostController.navigate(Screen.Login.route){
                     popUpTo(Screen.Splash.route){inclusive = true}

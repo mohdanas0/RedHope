@@ -1,5 +1,6 @@
 package com.example.redhope.modal
 
+import com.google.firebase.Timestamp
 
 
 data class ProfileUiState(
@@ -24,6 +25,7 @@ data class ProfileUiState(
 
     val isAvailable: Boolean = false,
     val lastDisabledAt: Long? = null,
+    val locationUpdatedAt: Timestamp? = null,
     val cooldownHours: Int = 6,
 
     val lat: Double?=null,

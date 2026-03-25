@@ -74,7 +74,9 @@ class FindDonorViewModel : ViewModel() {
                         name = donor.fullName,
                         bloodGroup = donor.bloodGroup,
                         phone = donor.phone,
-                        distanceKm = distance
+                        distanceKm = distance,
+                        locationUpdatedAt = donor.locationUpdatedAt
+
                     )
                 }
                     .sortedBy { it.distanceKm }

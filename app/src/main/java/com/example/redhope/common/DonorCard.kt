@@ -1,6 +1,7 @@
 package com.example.redhope.common
 
 import android.R.attr.name
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,12 +30,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.redhope.modal.DonorUIModel
 import com.example.redhope.util.callPhoneNumber
+import com.example.redhope.util.getMinutesAgo
 import java.nio.file.WatchEvent
 
 @Composable
 fun DonorCard(donor: DonorUIModel) {
 
     val context = LocalContext.current
+    Log.d("DONOR", donor.locationUpdatedAt.toString())
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -89,6 +92,10 @@ fun DonorCard(donor: DonorUIModel) {
             Text(
                 text = "${String.format("%.2f", donor.distanceKm)} km away",
                 color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "Updated ${getMinutesAgo(donor.locationUpdatedAt)}"
+
             )
         }
     }
