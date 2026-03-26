@@ -180,7 +180,7 @@ fun FindDonorScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(uiState.donors) { donor ->
-                        DonorCard(donor)
+                        DonorCard(donor, onRequestClick = {viewModel.sendDonationRequest(donor.uid, donorName = donor.name, bloodGroup = donor.bloodGroup)})
                     }
                 }
             }

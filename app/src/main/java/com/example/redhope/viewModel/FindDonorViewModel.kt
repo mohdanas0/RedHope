@@ -6,6 +6,8 @@ import com.example.redhope.modal.DonorUIModel
 import com.example.redhope.modal.FindDonorQuery
 import com.example.redhope.modal.FindDonorUiState
 import com.example.redhope.modal.UserFirestoreModel
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.update
 class FindDonorViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     private val _uiState = MutableStateFlow(FindDonorUiState())
     val uiState: StateFlow<FindDonorUiState> = _uiState
@@ -124,5 +127,34 @@ class FindDonorViewModel : ViewModel() {
         )
 
         return earthRadius * c
+    }
+
+    fun sendDonationRequest(
+        donorId: String,
+        donorName: String,
+        bloodGroup: String
+    ) {
+
+        val currentUser = auth.currentUser ?: return
+
+        val request = hashMapOf(
+            "donorId" to donorId,
+            "donorName" to donorName,
+
+            "receiverId" to currentUser.uid,
+            "receiverName" to (currentUser.displayName ?: "User"),
+
+            "bloodGroup" to bloodGroup,
+
+            "status" to "pending",
+            "donorAccepted" to false,
+            "donorCompleted" to false,
+            "receiverCompleted" to false,
+
+            "createdAt" to Timestamp.now()
+        )
+
+        db.collection("donation_requests")
+            .add(request)
     }
 }

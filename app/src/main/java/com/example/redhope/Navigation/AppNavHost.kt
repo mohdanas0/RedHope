@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.redhope.modal.FindDonorQuery
+import com.example.redhope.ui.theme.ui.DonationHistoryScreen
 import com.example.redhope.ui.theme.ui.FindDonorScreen
 import com.example.redhope.ui.theme.ui.HomeScreen
 import com.example.redhope.ui.theme.ui.LoginScreen
@@ -28,6 +29,7 @@ sealed class Screen(val route: String){
     object ProfileSetupScreen: Screen("Profile")
     object Home : Screen("Home")
     object FindDonorScreen : Screen("Find Donor")
+    object DonationHistoryScreen : Screen("Donation History")
 
 
 //    object FindDonorScreen : Screen(
@@ -118,11 +120,17 @@ fun AppNavHost(navHostController: NavHostController){
                 navHostController.navigate(Screen.ProfileSetupScreen.route)
 
             }, onHistoryClick = {
+                navHostController.navigate(Screen.DonationHistoryScreen.route)
 
             }, onEmergencyClick = {
 
             })
 
+        }
+        composable(Screen.DonationHistoryScreen.route) {
+            DonationHistoryScreen (
+                onBack = { navHostController.popBackStack() }
+            )
         }
 
         composable(Screen.ProfileSetupScreen.route){
@@ -173,3 +181,4 @@ fun AppNavHost(navHostController: NavHostController){
 
     }
 }
+

@@ -101,8 +101,12 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
-
+    val requests by homeVM.incomingRequests.collectAsState()
+    val myRequests by homeVM.myRequests.collectAsState()
+    val currentUser = FirebaseAuth.getInstance().currentUser
     var showEligibilityPopup by remember { mutableStateOf(false) }
+
+
 
     val context = LocalContext.current
 
@@ -172,6 +176,10 @@ fun HomeScreen(
         }
 
         profileVM.loadProfile()
+        currentUser?.uid?.let {
+            homeVM.listenIncomingRequests(it)
+            homeVM.listenRequesterRequests(it)
+        }
     }
 
     DisposableEffect(lifecycleOwner) {
@@ -342,7 +350,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Row(
@@ -383,7 +391,85 @@ fun HomeScreen(
                                 modifier = Modifier.weight(1f)
                             )
                         }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        val activeRequests = myRequests.filter {
+                            it.status == "pending" || it.status == "accepted"
+                        }
+
+                        if (activeRequests.isNotEmpty()) {
+
+                            Spacer(modifier = Modifier.height(20.dp))
+
+                            Text(
+                                text = "My Requests",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            activeRequests
+                                .filter { it.status == "pending" || it.status == "accepted" }
+                                .forEach { request ->
+
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    elevation = CardDefaults.cardElevation(4.dp)
+                                ) {
+
+                                    Column(modifier = Modifier.padding(12.dp)) {
+
+                                        Text(
+                                            "${request.donorName} (${request.bloodGroup})",
+                                            fontWeight = FontWeight.Bold
+                                        )
+
+                                        Spacer(modifier = Modifier.height(4.dp))
+
+                                        Text("Status: ${request.status}")
+
+                                        // ✅ SHOW BUTTON ONLY WHEN ACCEPTED
+                                        if (request.status == "accepted" && !request.receiverCompleted) {
+
+                                            Button(
+                                                onClick = {
+                                                    homeVM.receiverComplete(request.id)
+                                                },
+                                                modifier = Modifier.padding(top = 8.dp)
+                                            ) {
+                                                Text("Mark Completed")
+                                            }
+                                        }
+
+                                        // ✅ AFTER CLICK
+                                        if (request.receiverCompleted) {
+                                            Text(
+                                                "Donation Completed ✅",
+                                                color = Color(0xFF2E7D32),
+                                                modifier = Modifier.padding(top = 6.dp)
+                                            )
+                                        }
+
+                                        if (request.status == "pending") {
+
+                                            Button(
+                                                onClick = {
+                                                    homeVM.cancelRequest(request.id)
+                                                },
+                                                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                                                modifier = Modifier.padding(top = 8.dp)
+                                            ) {
+                                                Text("Cancel Request")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
+
                 }
             }
         }
@@ -440,6 +526,41 @@ fun HomeScreen(
                     ContextCompat.startForegroundService(context, intent)
 
                     showEligibilityPopup = false
+                }
+            }
+        )
+    }
+
+    if (requests.isNotEmpty()) {
+
+        val request = requests.first()
+
+        AlertDialog(
+            onDismissRequest = { },
+
+            title = {
+                Text("Blood Request")
+            },
+
+            text = {
+                Column {
+                    Text("${request.receiverName} needs ${request.bloodGroup} blood")
+                }
+            },
+
+            confirmButton = {
+                Button(onClick = {
+                    homeVM.acceptRequest(request.id)
+                }) {
+                    Text("Accept")
+                }
+            },
+
+            dismissButton = {
+                Button(onClick = {
+                    homeVM.rejectRequest(request.id)
+                }) {
+                    Text("Reject")
                 }
             }
         )
