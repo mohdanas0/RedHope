@@ -76,6 +76,8 @@ import com.example.redhope.util.openNearbyBloodBanks
 import com.example.redhope.viewModel.LocationViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -180,6 +182,16 @@ fun HomeScreen(
             homeVM.listenIncomingRequests(it)
             homeVM.listenRequesterRequests(it)
         }
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token ->
+
+                val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnSuccessListener
+
+                FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(uid)
+                    .update("fcmToken", token)
+            }
     }
 
     DisposableEffect(lifecycleOwner) {
@@ -475,19 +487,7 @@ fun HomeScreen(
         }
 
     }
-//    if (showFindDonorBottomSheet) {
-//        FindDonorBottomSheet(
-//            onDismiss = {
-//                showFindDonorBottomSheet = false
-//            },
-//            onSearchClick = { query ->
-//                showFindDonorBottomSheet = false
-//
-//                onFindDonorSearch(query)
-//
-//            }
-//        )
-//    }
+
 
     if (showEligibilityPopup) {
         EligibilityPopup(
@@ -571,22 +571,3 @@ fun HomeScreen(
 
 }
 
-
-
-//
-//@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-//@Preview(showBackground = true)
-//@Composable
-//fun HomePreview(){
-//    HomeScreen(onLogout = {
-//
-//    }, onFindDonor = {
-//
-//    }, onProfileClick = {
-//
-//    }, onHistoryClick = {
-//
-//    }, onEmergencyClick = {
-//
-//    })
-//}

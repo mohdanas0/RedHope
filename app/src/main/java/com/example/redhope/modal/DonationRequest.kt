@@ -10,7 +10,6 @@ data class DonationRequest(
 
     val status: String = "pending", // pending / accepted / rejected / completed
     val donorAccepted: Boolean = false,
-
-    val donorCompleted: Boolean = false,
+    
     val receiverCompleted: Boolean = false
 )

@@ -6,6 +6,7 @@ import com.example.redhope.modal.DonorUIModel
 import com.example.redhope.modal.FindDonorQuery
 import com.example.redhope.modal.FindDonorUiState
 import com.example.redhope.modal.UserFirestoreModel
+import com.example.redhope.util.sendPushNotification
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -136,25 +137,46 @@ class FindDonorViewModel : ViewModel() {
     ) {
 
         val currentUser = auth.currentUser ?: return
+        val uid = currentUser.uid
 
-        val request = hashMapOf(
-            "donorId" to donorId,
-            "donorName" to donorName,
+        // 1️⃣ Get requester name
+        db.collection("users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { userDoc ->
 
-            "receiverId" to currentUser.uid,
-            "receiverName" to (currentUser.displayName ?: "User"),
+                val receiverName = userDoc.getString("fullName") ?: "User"
 
-            "bloodGroup" to bloodGroup,
+                val request = hashMapOf(
+                    "donorId" to donorId,
+                    "donorName" to donorName,
+                    "receiverId" to uid,
+                    "receiverName" to receiverName,
+                    "bloodGroup" to bloodGroup,
+                    "status" to "pending",
+                    "donorAccepted" to false,
+                    "receiverCompleted" to false,
+                    "createdAt" to Timestamp.now()
+                )
 
-            "status" to "pending",
-            "donorAccepted" to false,
-            "donorCompleted" to false,
-            "receiverCompleted" to false,
+                // 2️⃣ Save request
+                db.collection("donation_requests").add(request)
 
-            "createdAt" to Timestamp.now()
-        )
+                // 3️⃣ Get donor token
+                db.collection("users")
+                    .document(donorId)
+                    .get()
+                    .addOnSuccessListener { donorDoc ->
 
-        db.collection("donation_requests")
-            .add(request)
+                        val token = donorDoc.getString("fcmToken") ?: return@addOnSuccessListener
+
+                        // 4️⃣ Send push
+                        sendPushNotification(
+                            token,
+                            "Blood Request",
+                            "$receiverName needs $bloodGroup blood"
+                        )
+                    }
+            }
     }
 }

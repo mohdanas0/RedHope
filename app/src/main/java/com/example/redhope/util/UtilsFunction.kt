@@ -108,7 +108,7 @@ class CooldownWorker(
     }
 }
 
-fun getMinutesAgo(timestamp: Timestamp?): String {
+fun getTimesAgo(timestamp: Timestamp?): String {
 
     if (timestamp == null) return "Unknown"
 
@@ -116,8 +116,48 @@ fun getMinutesAgo(timestamp: Timestamp?): String {
     val diff = now - timestamp.toDate().time
 
     val minutes = diff / (1000 * 60)
+    val hours = diff / (1000 * 60 * 60)
+    val days = diff / (1000 * 60 * 60 * 24)
 
-    return "$minutes minutes ago"
+    return when {
+        minutes < 60 -> if (minutes == 1L) "1 min ago" else "$minutes min ago"
+        hours < 24 -> if (hours == 1L) "1 hr ago" else "$hours hr ago"
+        else -> if (days == 1L) "1 day ago" else "$days days ago"
+    }
+}
+
+fun sendPushNotification(token: String, title: String, body: String) {
+
+    Thread {
+        try {
+            val url = java.net.URL("https://fcm.googleapis.com/fcm/send")
+
+            val json = org.json.JSONObject()
+            json.put("to", token)
+
+            val notification = org.json.JSONObject()
+            notification.put("title", title)
+            notification.put("body", body)
+
+            json.put("notification", notification)
+
+            val conn = url.openConnection() as java.net.HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("Authorization", "key=YOUR_SERVER_KEY")
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.doOutput = true
+
+            val outputStream = conn.outputStream
+            outputStream.write(json.toString().toByteArray())
+            outputStream.flush()
+            outputStream.close()
+
+            conn.inputStream.close()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }.start()
 }
 
 
