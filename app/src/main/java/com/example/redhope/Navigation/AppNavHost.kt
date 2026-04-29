@@ -9,7 +9,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.redhope.modal.FindDonorQuery
 import com.example.redhope.ui.theme.ui.DonationHistoryScreen
 import com.example.redhope.ui.theme.ui.FindDonorScreen
 import com.example.redhope.ui.theme.ui.HomeScreen

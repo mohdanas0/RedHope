@@ -2,16 +2,15 @@ package com.example.redhope.viewModel
 
 import android.app.Application
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+
 import androidx.lifecycle.AndroidViewModel
 
-import androidx.lifecycle.ViewModel
+
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.redhope.modal.ProfileUiState
 import com.example.redhope.util.CooldownWorker
-import com.google.firebase.Firebase
+
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -35,8 +34,6 @@ class ProfileViewModel(application: Application): AndroidViewModel(application) 
             "fullName" -> _uiState.value.copy(fullName = value, fullNameError = null)
             "bloodGroup" -> _uiState.value.copy(bloodGroup = value, bloodGroupError = null)
             "phone" -> _uiState.value.copy(phone = value, phoneError = null)
-            "city"-> _uiState.value.copy(city = value, cityError = null )
-            "pincode"->_uiState.value.copy(pincode = value, pincodeError = null )
             else -> _uiState.value
         }
     }
@@ -56,7 +53,7 @@ class ProfileViewModel(application: Application): AndroidViewModel(application) 
 
                 if (error != null || document == null || !document.exists()) return@addSnapshotListener
 
-                // 🔹 Migration for old users (runs only once)
+
                 if (!document.contains("cooldownHours") || !document.contains("lastDisabledAt")) {
                     firestore.collection("users")
                         .document(uid)
@@ -72,8 +69,7 @@ class ProfileViewModel(application: Application): AndroidViewModel(application) 
                     fullName = document.getString("fullName") ?: "",
                     phone = document.getString("phone") ?: "",
                     bloodGroup = document.getString("bloodGroup") ?: "",
-                    city = document.getString("city") ?: "",
-                    pincode = document.getString("pincode") ?: "",
+
 
                     isAvailable = document.getBoolean("isAvailable") ?: false,
                     lastDisabledAt = document.getLong("lastDisabledAt"),
@@ -88,14 +84,13 @@ class ProfileViewModel(application: Application): AndroidViewModel(application) 
     fun saveProfile(onSuccess: () -> Unit, onFailure: (String) -> Unit) {
         val uid = auth.currentUser?.uid ?: return
 
-        // Basic validation
-        if (_uiState.value.fullName.isBlank() || _uiState.value.bloodGroup.isBlank() || _uiState.value.phone.isBlank() || _uiState.value.city.isBlank() || _uiState.value.pincode.isBlank() ) {
+
+        if (_uiState.value.fullName.isBlank() || _uiState.value.bloodGroup.isBlank() || _uiState.value.phone.isBlank()) {
             _uiState.value = _uiState.value.copy(
                 fullNameError = if (_uiState.value.fullName.isBlank()) "Name required" else null,
                 bloodGroupError = if (_uiState.value.bloodGroup.isBlank()) "Select blood group" else null,
                 phoneError = if (_uiState.value.phone.isBlank()) "Phone required" else null,
-                cityError = if (_uiState.value.city.isBlank()) "City Required" else null,
-                pincodeError = if (_uiState.value.pincode.isBlank()) "Pincode required" else null,
+
             )
             return
         }
@@ -106,8 +101,7 @@ class ProfileViewModel(application: Application): AndroidViewModel(application) 
             "fullName" to _uiState.value.fullName,
             "bloodGroup" to _uiState.value.bloodGroup,
             "phone" to _uiState.value.phone,
-            "city" to _uiState.value.city,
-            "pincode" to _uiState.value.pincode
+
         )
 
         firestore.collection("users")
@@ -189,20 +183,16 @@ class ProfileViewModel(application: Application): AndroidViewModel(application) 
             .enqueue(workRequest)
     }
 
-//    fun updateLocation(latitude: Double, longitude: Double) {
-//
-//        val userId = auth.currentUser?.uid ?: return
-//
-//        FirebaseFirestore.getInstance()
-//            .collection("users")
-//            .document(userId)
-//            .update(
-//                mapOf(
-//                    "lat" to latitude,
-//                    "lng" to longitude,
-//                    "locationUpdatedAt" to Timestamp.now()
-//                )
-//            )
-//    }
+    fun isProfileComplete(): Boolean {
+
+        val state = _uiState.value
+
+        return !state.fullName.isNullOrBlank() &&
+                !state.bloodGroup.isNullOrBlank() &&
+                !state.phone.isNullOrBlank()
+
+    }
+
+
 }
 

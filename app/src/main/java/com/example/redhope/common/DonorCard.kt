@@ -32,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.redhope.modal.DonorUIModel
 import com.example.redhope.util.callPhoneNumber
-import com.example.redhope.util.getMinutesAgo
+import com.example.redhope.util.getTimesAgo
 import java.nio.file.WatchEvent
 
 @Composable
@@ -92,7 +92,7 @@ fun DonorCard(donor: DonorUIModel, onRequestClick: () -> Unit) {
                     )
 
                     Text(
-                        text = "Updated ${getMinutesAgo(donor.locationUpdatedAt)}"
+                        text = "Updated ${getTimesAgo(donor.locationUpdatedAt)}"
                     )
                 }
 
@@ -128,9 +128,3 @@ fun DonorCard(donor: DonorUIModel, onRequestClick: () -> Unit) {
 
 
 
-
-//@Preview(showBackground = true)
-//@Composable
-//fun DonorPreview(){
-//    DonorCard(donor = DonorUIModel("1112","Rahul", "O+","7895024033", distanceKm = 5.00))
-//}

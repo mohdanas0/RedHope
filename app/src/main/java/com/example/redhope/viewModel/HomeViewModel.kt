@@ -123,6 +123,12 @@ class HomeViewModel : ViewModel(){
             .document(requestId)
             .update("status", "cancelled")
     }
+
+    fun markNotCompleted(requestId: String) {
+        firestore.collection("donation_requests")
+            .document(requestId)
+            .update("status", "cancelled")   // or "not_completed"
+    }
 //    fun donorComplete(requestId: String) {
 //
 //        val db = FirebaseFirestore.getInstance()

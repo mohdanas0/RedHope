@@ -1,34 +1,33 @@
 package com.example.redhope.ui.theme.ui
 
 import android.Manifest
-import android.R
-import android.annotation.SuppressLint
+
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.text.Layout
+
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresPermission
-import androidx.camera.camera2.pipe.core.Log
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
+
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
@@ -42,9 +41,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.redhope.common.ButtonCard
@@ -56,29 +55,23 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import com.example.redhope.modal.ProfileUiState
+
 import com.example.redhope.viewModel.ProfileViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontVariation.Settings
+
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.navigation.NavHostController
-import com.example.redhope.modal.FindDonorQuery
+
 import com.example.redhope.util.LocationForegroundService
 import com.example.redhope.util.openNearbyBloodBanks
 import com.example.redhope.viewModel.LocationViewModel
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 
 
 @Composable
@@ -251,6 +244,17 @@ fun HomeScreen(
                                         cooldownHours = profileUiState.cooldownHours
                                     )
 
+                                if (!profileVM.isProfileComplete()) {
+
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Please complete your profile first"
+                                        )
+                                    }
+
+                                    return@Switch
+                                }
+
                                 if (allowed) {
                                     showEligibilityPopup = true
                                 } else {
@@ -349,50 +353,45 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
                             .padding(16.dp),
-                        verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            ButtonCard(
-                                icon = com.example.redhope.R.drawable.find,
-                                title = "Find Donor",
-                                onClick = onFindDonor,
 
-                                modifier = Modifier.weight(1f)
-                            )
+                        // ✅ Centered small cards
+                        ButtonCard(
+                            icon = com.example.redhope.R.drawable.find,
+                            title = "Find Donor",
+                            onClick = onFindDonor,
+                            modifier = Modifier
+                                .fillMaxWidth(0.4f)
+                        )
 
-                            ButtonCard(
-                                icon = com.example.redhope.R.drawable.alert,
-                                title = "Emergency",
-                                onClick = onEmergencyClick,
-                                modifier = Modifier.weight(1f)
-                            )
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        }
+                        ButtonCard(
+                            icon = com.example.redhope.R.drawable.file,
+                            title = "Donation",
+                            onClick = onHistoryClick,
+                            modifier = Modifier
+                                .fillMaxWidth(0.4f)
+                        )
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            ButtonCard(
-                                icon = com.example.redhope.R.drawable.file,
-                                title = "Donation",
-                                onClick = onHistoryClick,
-                                modifier = Modifier.weight(1f)
-                            )
-                            ButtonCard(
-                                icon = com.example.redhope.R.drawable.nearby,
-                                title = "Nearby BloodBanks",
-                                onClick = { openNearbyBloodBanks(context) },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        Spacer(modifier = Modifier.height(20.dp))
+                        ButtonCard(
+                            icon = com.example.redhope.R.drawable.nearby,
+                            title = "Nearby BloodBanks",
+                            onClick = { openNearbyBloodBanks(context) },
+                            modifier = Modifier
+                                .fillMaxWidth(0.4f)
+                        )
+
+
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+
 
                         val activeRequests = myRequests.filter {
                             it.status == "pending" || it.status == "accepted"
@@ -400,17 +399,13 @@ fun HomeScreen(
 
                         if (activeRequests.isNotEmpty()) {
 
-                            Spacer(modifier = Modifier.height(20.dp))
-
                             Text(
                                 text = "My Requests",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
 
-                            activeRequests
-                                .filter { it.status == "pending" || it.status == "accepted" }
-                                .forEach { request ->
+                            activeRequests.forEach { request ->
 
                                 Card(
                                     modifier = Modifier
@@ -430,20 +425,34 @@ fun HomeScreen(
 
                                         Text("Status: ${request.status}")
 
-                                        // ✅ SHOW BUTTON ONLY WHEN ACCEPTED
                                         if (request.status == "accepted" && !request.receiverCompleted) {
 
-                                            Button(
-                                                onClick = {
-                                                    homeVM.receiverComplete(request.id)
-                                                },
-                                                modifier = Modifier.padding(top = 8.dp)
+                                            Row(
+                                                modifier = Modifier.padding(top = 8.dp),
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                                             ) {
-                                                Text("Mark Completed")
+
+
+                                                Button(
+                                                    onClick = {
+                                                        homeVM.receiverComplete(request.id)
+                                                    }
+                                                ) {
+                                                    Text("Completed")
+                                                }
+
+
+                                                Button(
+                                                    onClick = {
+                                                        homeVM.markNotCompleted(request.id)
+                                                    },
+
+                                                ) {
+                                                    Text("Not Completed")
+                                                }
                                             }
                                         }
 
-                                        // ✅ AFTER CLICK
                                         if (request.receiverCompleted) {
                                             Text(
                                                 "Donation Completed ✅",
@@ -453,7 +462,6 @@ fun HomeScreen(
                                         }
 
                                         if (request.status == "pending") {
-
                                             Button(
                                                 onClick = {
                                                     homeVM.cancelRequest(request.id)
@@ -475,19 +483,7 @@ fun HomeScreen(
         }
 
     }
-//    if (showFindDonorBottomSheet) {
-//        FindDonorBottomSheet(
-//            onDismiss = {
-//                showFindDonorBottomSheet = false
-//            },
-//            onSearchClick = { query ->
-//                showFindDonorBottomSheet = false
-//
-//                onFindDonorSearch(query)
-//
-//            }
-//        )
-//    }
+
 
     if (showEligibilityPopup) {
         EligibilityPopup(
@@ -573,20 +569,4 @@ fun HomeScreen(
 
 
 
-//
-//@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-//@Preview(showBackground = true)
-//@Composable
-//fun HomePreview(){
-//    HomeScreen(onLogout = {
-//
-//    }, onFindDonor = {
-//
-//    }, onProfileClick = {
-//
-//    }, onHistoryClick = {
-//
-//    }, onEmergencyClick = {
-//
-//    })
-//}
+

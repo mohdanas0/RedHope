@@ -3,7 +3,6 @@ package com.example.redhope.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.redhope.modal.DonorUIModel
-import com.example.redhope.modal.FindDonorQuery
 import com.example.redhope.modal.FindDonorUiState
 import com.example.redhope.modal.UserFirestoreModel
 import com.google.firebase.Timestamp
@@ -21,6 +20,8 @@ class FindDonorViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(FindDonorUiState())
     val uiState: StateFlow<FindDonorUiState> = _uiState
+
+    val currentUid = FirebaseAuth.getInstance().currentUser?.uid
 
     // 📍 Store requester location
     fun setUserLocation(lat: Double, lng: Double) {
@@ -53,6 +54,8 @@ class FindDonorViewModel : ViewModel() {
 
         _uiState.update { it.copy(isLoading = true, error = null) }
 
+        val MAX_DISTANCE_KM = 20   // ✅ radius limit
+
         db.collection("users")
             .whereEqualTo("bloodGroup", bloodGroup)
             .whereEqualTo("isAvailable", true)
@@ -72,6 +75,10 @@ class FindDonorViewModel : ViewModel() {
                         donor.lat, donor.lng
                     )
 
+                    if (distance > MAX_DISTANCE_KM) return@mapNotNull null
+
+                    if (donor.uid == currentUid) return@mapNotNull null
+
                     DonorUIModel(
                         uid = donor.uid,
                         name = donor.fullName,
@@ -79,7 +86,6 @@ class FindDonorViewModel : ViewModel() {
                         phone = donor.phone,
                         distanceKm = distance,
                         locationUpdatedAt = donor.locationUpdatedAt
-
                     )
                 }
                     .sortedBy { it.distanceKm }

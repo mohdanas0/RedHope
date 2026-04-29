@@ -17,11 +17,6 @@ data class ProfileUiState(
     val isLoading: Boolean = false,
     val isSaved: Boolean = false,
 
-    val city: String = "",
-    val cityError: String?=null,
-
-    val pincode:String = "",
-    val pincodeError:String?=null,
 
     val isAvailable: Boolean = false,
     val lastDisabledAt: Long? = null,

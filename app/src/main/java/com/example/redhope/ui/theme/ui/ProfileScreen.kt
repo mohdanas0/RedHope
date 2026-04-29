@@ -170,25 +170,6 @@ fun ProfileScreen(
                     enabled = isEditing
                 )
 
-                AuthenticationTextField(
-                    value = state.city,
-                    onValueChange = {viewModel.onFieldChange("city",it)},
-                    label = "City",
-                    isPassword = false,
-                    leadingIcon = R.drawable.cityscape,
-                    error = state.cityError,
-                    enabled = isEditing
-                )
-
-                AuthenticationTextField(
-                    value = state.pincode,
-                    onValueChange = {viewModel.onFieldChange("pincode",it)},
-                    label = "Pincode",
-                    isPassword = false,
-                    leadingIcon = R.drawable.pin,
-                    error = state.pincodeError,
-                    enabled = isEditing
-                )
 
 
 

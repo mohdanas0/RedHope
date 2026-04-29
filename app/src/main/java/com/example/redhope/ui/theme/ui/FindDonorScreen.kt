@@ -51,7 +51,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.redhope.common.BloodGroupDropdown
 import com.example.redhope.common.DonorCard
-import com.example.redhope.modal.FindDonorQuery
 import com.example.redhope.modal.FindDonorUiState
 import com.example.redhope.viewModel.FindDonorViewModel
 import com.example.redhope.viewModel.LocationViewModel
@@ -164,13 +163,32 @@ fun FindDonorScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 32.dp),
+                        .padding(top = 40.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "No donors found for ${uiState.selectedBloodGroup}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                        Text(
+                            text = "No donors found within 20 km",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.Gray
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Text(
+                            text = "for ${uiState.selectedBloodGroup}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = "Try again later or check nearby blood banks",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
 
