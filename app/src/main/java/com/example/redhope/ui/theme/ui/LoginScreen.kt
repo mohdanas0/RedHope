@@ -127,9 +127,14 @@ fun LoginScreen(
 
                 AuthenticationButton(
                     onClick = {
-                       viewModel.login { onLoginClick() } },
+                        viewModel.login(
+                            onSuccess = { onLoginClick() },
+                            onFailure = { errorMessage ->
+                                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    },
                     text = "Login",
-
                     isLoading = state.isLoading
                 )
 

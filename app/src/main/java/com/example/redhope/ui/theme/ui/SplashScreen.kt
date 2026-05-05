@@ -14,14 +14,26 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun SplashScreen(
     onNavigateToHome: () -> Unit,
-    onNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit,
+    onNavigateToVerification: () -> Unit
 ) {
     val auth = FirebaseAuth.getInstance()
 
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(2000)
-        if (auth.currentUser != null) {
-            onNavigateToHome()
+
+        val user = auth.currentUser
+
+        if (user != null) {
+
+            user.reload().addOnCompleteListener {
+
+                if (user.isEmailVerified) {
+                    onNavigateToHome()
+                } else {
+                    onNavigateToVerification()
+                }
+            }
         } else {
             onNavigateToLogin()
         }

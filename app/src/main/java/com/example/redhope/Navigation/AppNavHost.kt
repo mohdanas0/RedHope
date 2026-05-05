@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.redhope.ui.theme.ui.DonationHistoryScreen
+import com.example.redhope.ui.theme.ui.EmailVerificationScreen
 import com.example.redhope.ui.theme.ui.FindDonorScreen
 import com.example.redhope.ui.theme.ui.HomeScreen
 import com.example.redhope.ui.theme.ui.LoginScreen
@@ -29,6 +30,7 @@ sealed class Screen(val route: String){
     object Home : Screen("Home")
     object FindDonorScreen : Screen("Find Donor")
     object DonationHistoryScreen : Screen("Donation History")
+    object EmailVerificationScreen : Screen("EmailVerification")
 
 
 //    object FindDonorScreen : Screen(
@@ -57,16 +59,23 @@ fun AppNavHost(navHostController: NavHostController){
     ){
 
         composable(Screen.Splash.route) {
-            SplashScreen(onNavigateToHome = {
-                navHostController.navigate(Screen.Home.route){
-                    popUpTo(Screen.Splash.route){inclusive = true}
+            SplashScreen(
+                onNavigateToHome = {
+                    navHostController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = {
+                    navHostController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                },
+                onNavigateToVerification = {   // 🔥 NEW
+                    navHostController.navigate(Screen.EmailVerificationScreen.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
                 }
-
-            }, onNavigateToLogin = {
-                navHostController.navigate(Screen.Login.route){
-                    popUpTo(Screen.Splash.route){inclusive = true}
-                }
-            })
+            )
         }
 
         composable(Screen.Login.route) {
@@ -87,11 +96,23 @@ fun AppNavHost(navHostController: NavHostController){
 
         composable(Screen.SignUp.route){
             SignUpScreen(onSignUpSuccess = {
-                navHostController.navigate(Screen.Login.route)
+                navHostController.navigate(Screen.EmailVerificationScreen.route) {
+                    popUpTo(Screen.SignUp.route) { inclusive = true }
+                }
             },
                 onLoginClick = {
                     navHostController.popBackStack()
                 })
+        }
+
+        composable(Screen.EmailVerificationScreen.route) {
+            EmailVerificationScreen(
+                onVerified = {
+                    navHostController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.SignUp.route) { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable(Screen.FindDonorScreen.route){

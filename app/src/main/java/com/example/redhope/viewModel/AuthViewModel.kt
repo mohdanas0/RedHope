@@ -58,58 +58,134 @@ class AuthViewModel : ViewModel(){
     }
 
 
-    fun signUp(onSuccess: () -> Unit,onFailure: (String) -> Unit) {
+    fun signUp(
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
         if (!validate(true)) return
+
         _uiState.value = _uiState.value.copy(isLoading = true)
 
-        auth.createUserWithEmailAndPassword(_uiState.value.email, _uiState.value.password)
-            .addOnCompleteListener { task ->
-                _uiState.value = _uiState.value.copy(isLoading = false)
-                if (task.isSuccessful) {
-                    val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
-                    val map = hashMapOf(
-                        "uid" to uid,
-                        "fullName" to _uiState.value.fullName,
-                        "email" to _uiState.value.email,
-                        "isAvailable" to false,
-                        "lastDisabledAt" to null,
-                        "cooldownHours" to 6,
-                        "createdAt" to System.currentTimeMillis()
-                    )
-                    firestore.collection("users")
-                        .document(uid)
-                        .set(map)
-                        .addOnSuccessListener {
-                            _uiState.value = _uiState.value.copy(isLoading = false)
-                            onSuccess()
-                        }
-                        .addOnFailureListener { e ->
-                            _uiState.value = _uiState.value.copy(isLoading = false)
-                            onFailure("Firestore error: ${e.message}")
-                        }
+        auth.createUserWithEmailAndPassword(
+            _uiState.value.email,
+            _uiState.value.password
+        ).addOnCompleteListener { task ->
 
+            _uiState.value = _uiState.value.copy(isLoading = false)
 
-                }
-                else{
-                    _uiState.value = _uiState.value.copy(isLoading = false)
-                    onFailure(task.exception?.message ?: "Signup failed")
-                    Log.e("SIGNUP_ERROR", "Failed: ", task.exception)
-                }
+            if (task.isSuccessful) {
+
+                val user = auth.currentUser
+
+                // 🔹 Step 1: Send Email Verification
+                user?.sendEmailVerification()
+                    ?.addOnSuccessListener {
+
+                        val uid = user.uid
+
+                        val map = hashMapOf(
+                            "uid" to uid,
+                            "fullName" to _uiState.value.fullName,
+                            "email" to _uiState.value.email,
+                            "isAvailable" to false,
+                            "lastDisabledAt" to null,
+                            "cooldownHours" to 6,
+                            "createdAt" to System.currentTimeMillis(),
+                            "isEmailVerified" to false   // 🔹 track verification
+                        )
+
+                        // 🔹 Step 2: Save user in Firestore
+                        firestore.collection("users")
+                            .document(uid)
+                            .set(map)
+                            .addOnSuccessListener {
+                                onSuccess()  // show message like "Check your email"
+                            }
+                            .addOnFailureListener { e ->
+                                onFailure("Firestore error: ${e.message}")
+                            }
+
+                    }
+                    ?.addOnFailureListener { e ->
+                        onFailure("Failed to send verification email: ${e.message}")
+                    }
+
+            } else {
+                onFailure(task.exception?.message ?: "Signup failed")
+                Log.e("SIGNUP_ERROR", "Failed: ", task.exception)
             }
+        }
     }
 
 
-    fun login(onSuccess: () -> Unit) {
+    fun login(
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
         if (!validate(false)) return
+
         _uiState.value = _uiState.value.copy(isLoading = true)
 
-        auth.signInWithEmailAndPassword(_uiState.value.email, _uiState.value.password)
-            .addOnCompleteListener { task ->
+        auth.signInWithEmailAndPassword(
+            _uiState.value.email,
+            _uiState.value.password
+        ).addOnCompleteListener { task ->
+
+            if (task.isSuccessful) {
+
+                val user = auth.currentUser
+
+
+                user?.reload()?.addOnCompleteListener {
+
+                    if (user.isEmailVerified) {
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                        onSuccess()
+                    } else {
+                        auth.signOut()
+
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                        onFailure("Please verify your email before logging in")
+                    }
+                }
+
+            } else {
                 _uiState.value = _uiState.value.copy(isLoading = false)
-                if (task.isSuccessful) onSuccess()
-                else _uiState.value = _uiState.value.copy(emailError = task.exception?.message)
+                onFailure(task.exception?.message ?: "Login failed")
+            }
+        }
+    }
+
+    fun resendVerification(onResult: (String) -> Unit) {
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if (user == null) {
+            onResult("No user found. Please sign up first.")
+            return
+        }
+
+        user.sendEmailVerification()
+            .addOnSuccessListener {
+                onResult("Verification email sent successfully")
+            }
+            .addOnFailureListener {
+                onResult("Failed: ${it.message}")
             }
     }
 
+    fun checkEmailVerified(
+        onVerified: () -> Unit,
+        onNotVerified: () -> Unit
+    ) {
+        val user = auth.currentUser ?: return
+
+        user.reload().addOnCompleteListener {
+            if (user.isEmailVerified) {
+                onVerified()
+            } else {
+                onNotVerified()
+            }
+        }
+    }
 }
 

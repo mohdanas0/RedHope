@@ -141,7 +141,14 @@ fun SignUpScreen(
 
                 AuthenticationButton(
                     onClick = {
-                        viewModel.signUp(onSuccess = { onSignUpSuccess() }, onFailure = { errorMessage ->
+                        viewModel.signUp(onSuccess = {
+                            Toast.makeText(
+                                context,
+                                "Verification email sent. Please check your inbox.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            onSignUpSuccess()
+                        }, onFailure = { errorMessage ->
                             Toast.makeText(context,errorMessage, Toast.LENGTH_SHORT).show()
                         }
                             )
@@ -150,6 +157,8 @@ fun SignUpScreen(
                     text = "SignUp",
                     isLoading = state.isLoading
                 )
+
+
 
 
 
