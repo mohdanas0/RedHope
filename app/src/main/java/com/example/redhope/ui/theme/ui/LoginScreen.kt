@@ -50,7 +50,6 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun LoginScreen(
     onLoginClick : () -> Unit,
-    onGoogleLogin : () -> Unit,
     onSignUpClick : () -> Unit
 ){
     val viewModel : AuthViewModel = viewModel()
@@ -138,21 +137,6 @@ fun LoginScreen(
                     isLoading = state.isLoading
                 )
 
-
-
-                OutlinedButton(
-                    onClick = onGoogleLogin,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.google), // google icon
-                        contentDescription = "Google Icon",
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Continue with Google")
-                }
 
 
                 Row(

@@ -88,9 +88,7 @@ fun AppNavHost(navHostController: NavHostController){
                 onSignUpClick = {
                     navHostController.navigate(Screen.SignUp.route)
                 },
-                onGoogleLogin = {
-                    //we do later
-                }
+
             )
         }
 
