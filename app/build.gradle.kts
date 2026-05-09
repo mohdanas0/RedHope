@@ -76,4 +76,7 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
+    implementation("androidx.compose.foundation:foundation:1.6.0")
+    implementation("androidx.compose.animation:animation:1.6.0")
+
 }

@@ -66,10 +66,15 @@ fun LoginScreen(
       modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary)
     ){
 
+        AutoSlidingBanner(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 50.dp)
+        )
         Card(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top=200.dp)
+                .padding(top=280.dp)
                 .align(Alignment.Center),
             shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
@@ -89,6 +94,7 @@ fun LoginScreen(
                     Modifier.size(200.dp))
 
                 Text(text = "Donate Now", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onBackground)
+
 
                 AuthenticationTextField(
                     value = state.email,
@@ -210,15 +216,3 @@ fun LoginScreen(
 
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview(){
-    RedHopeTheme {
-        LoginScreen( onLoginClick = {
-            // Just print dummy values in Preview (won’t actually run)
-            println("Login clicked")
-        }, onGoogleLogin = {println("Google clicked")}, onSignUpClick = {println("Signup click")})
-    }
-
-}

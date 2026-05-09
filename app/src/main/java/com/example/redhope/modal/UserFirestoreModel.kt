@@ -6,8 +6,6 @@ data class UserFirestoreModel(
     val uid: String = "",
     val fullName: String = "",
     val bloodGroup: String = "",
-    val city: String = "",
-    val pincode: String = "",
     val phone: String = "",
     val isAvailable: Boolean = false,
     val lastDisabledAt: Long? = null,

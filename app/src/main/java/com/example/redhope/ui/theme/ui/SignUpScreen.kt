@@ -69,10 +69,16 @@ fun SignUpScreen(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary)
     ){
 
+        AutoSlidingBanner(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 50.dp)
+        )
+
         Card(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top=200.dp)
+                .padding(top=280.dp)
                 .align(Alignment.Center),
             shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),

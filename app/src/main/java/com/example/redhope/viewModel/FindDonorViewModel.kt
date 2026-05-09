@@ -23,14 +23,13 @@ class FindDonorViewModel : ViewModel() {
 
     val currentUid = FirebaseAuth.getInstance().currentUser?.uid
 
-    // 📍 Store requester location
+
     fun setUserLocation(lat: Double, lng: Double) {
         _uiState.update {
             it.copy(currentLat = lat, currentLng = lng)
         }
     }
 
-    // 🩸 Update selected blood group
     fun updateBloodGroup(group: String) {
         _uiState.update { it.copy(selectedBloodGroup = group) }
     }

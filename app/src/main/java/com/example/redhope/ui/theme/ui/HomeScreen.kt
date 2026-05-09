@@ -2,6 +2,7 @@ package com.example.redhope.ui.theme.ui
 
 import android.Manifest
 
+
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,6 +11,7 @@ import android.location.LocationManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,6 +65,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -321,155 +325,247 @@ fun HomeScreen(
                         .padding(top = 110.dp)
                         .align(Alignment.TopCenter)
                 )
-
-
                 Card(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 150.dp),
-                    shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+
+                    shape = RoundedCornerShape(
+                        topStart = 30.dp,
+                        topEnd = 30.dp
+                    ),
+
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    ),
+
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        "Hi ${name ?: "Loading..."} 👋",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-
-                    Text(
-                        "Ready to donate today?",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
 
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
-                        // ✅ Centered small cards
-                        ButtonCard(
-                            icon = com.example.redhope.R.drawable.find,
-                            title = "Find Donor",
-                            onClick = onFindDonor,
+
+
+                        Card(
                             modifier = Modifier
-                                .fillMaxWidth(0.4f)
-                        )
+                                .fillMaxWidth()
+                                .padding(
+                                    horizontal = 16.dp,
+                                    vertical = 20.dp
+                                ),
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                            shape = RoundedCornerShape(24.dp),
 
-                        ButtonCard(
-                            icon = com.example.redhope.R.drawable.file,
-                            title = "Donation",
-                            onClick = onHistoryClick,
-                            modifier = Modifier
-                                .fillMaxWidth(0.4f)
-                        )
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFF18181B)
+                            ),
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        ButtonCard(
-                            icon = com.example.redhope.R.drawable.nearby,
-                            title = "Nearby BloodBanks",
-                            onClick = { openNearbyBloodBanks(context) },
-                            modifier = Modifier
-                                .fillMaxWidth(0.4f)
-                        )
-
-
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-
-
-                        val activeRequests = myRequests.filter {
-                            it.status == "pending" || it.status == "accepted"
-                        }
-
-                        if (activeRequests.isNotEmpty()) {
-
-                            Text(
-                                text = "My Requests",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 8.dp
                             )
+                        ) {
 
-                            activeRequests.forEach { request ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
 
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 8.dp),
-                                    elevation = CardDefaults.cardElevation(4.dp)
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+
+
+                                Column {
+
+                                    Text(
+                                        text = "Welcome Back 👋",
+                                        color = Color.Gray,
+                                        fontSize = 14.sp
+                                    )
+
+                                    Spacer(modifier = Modifier.height(6.dp))
+
+                                    Text(
+                                        text = name ?: "Loading...",
+                                        color = Color.White,
+                                        fontSize = 28.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+
+                                    Spacer(modifier = Modifier.height(4.dp))
+
+                                    Text(
+                                        text = "Ready to donate today?",
+                                        color = Color.LightGray,
+                                        fontSize = 15.sp
+                                    )
+                                }
+
+
+
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                            modifier = Modifier.size(95.dp)
                                 ) {
 
-                                    Column(modifier = Modifier.padding(12.dp)) {
 
-                                        Text(
-                                            "${request.donorName} (${request.bloodGroup})",
-                                            fontWeight = FontWeight.Bold
-                                        )
 
-                                        Spacer(modifier = Modifier.height(4.dp))
+                                    Image(painter = painterResource(com.example.redhope.R.drawable.bloodlogo), contentDescription = "logo",
+                                        Modifier.fillMaxSize())
 
-                                        Text("Status: ${request.status}")
+                                    // Blood Group Text
 
-                                        if (request.status == "accepted" && !request.receiverCompleted) {
+                                    Text(
+                                        text = if (profileUiState.bloodGroup.isNotEmpty())
+                                            profileUiState.bloodGroup
+                                        else
+                                            "",
 
-                                            Row(
-                                                modifier = Modifier.padding(top = 8.dp),
-                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        fontSize = 16.sp,
+
+                                        fontWeight = FontWeight.ExtraBold,
+
+                                        modifier = Modifier
+                                            .padding(top = 8.dp)
+                                    )
+                                }
+                            }
+                        }
+
+
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp),
+
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
+                            ButtonCard(
+                                icon = com.example.redhope.R.drawable.find,
+                                title = "Find Donor",
+                                onClick = onFindDonor,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.45f)
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            ButtonCard(
+                                icon = com.example.redhope.R.drawable.file,
+                                title = "Donation",
+                                onClick = onHistoryClick,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.45f)
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            ButtonCard(
+                                icon = com.example.redhope.R.drawable.nearby,
+                                title = "Nearby BloodBanks",
+                                onClick = {
+                                    openNearbyBloodBanks(context)
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth(0.45f)
+                            )
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            val activeRequests = myRequests.filter {
+                                it.status == "pending" || it.status == "accepted"
+                            }
+
+                            if (activeRequests.isNotEmpty()) {
+
+                                Text(
+                                    text = "My Requests",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                activeRequests.forEach { request ->
+
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 8.dp),
+
+                                        elevation = CardDefaults.cardElevation(4.dp)
+                                    ) {
+
+                                        Column(
+                                            modifier = Modifier.padding(12.dp)
+                                        ) {
+
+                                            Text(
+                                                "${request.donorName} (${request.bloodGroup})",
+                                                fontWeight = FontWeight.Bold
+                                            )
+
+                                            Spacer(modifier = Modifier.height(4.dp))
+
+                                            Text("Status: ${request.status}")
+
+                                            if (
+                                                request.status == "accepted" &&
+                                                !request.receiverCompleted
                                             ) {
 
+                                                Row(
+                                                    modifier = Modifier.padding(top = 8.dp),
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
 
-                                                Button(
-                                                    onClick = {
-                                                        homeVM.receiverComplete(request.id)
+                                                    Button(
+                                                        onClick = {
+                                                            homeVM.receiverComplete(request.id)
+                                                        }
+                                                    ) {
+                                                        Text("Completed")
                                                     }
-                                                ) {
-                                                    Text("Completed")
-                                                }
 
-
-                                                Button(
-                                                    onClick = {
-                                                        homeVM.markNotCompleted(request.id)
-                                                    },
-
-                                                ) {
-                                                    Text("Not Completed")
+                                                    Button(
+                                                        onClick = {
+                                                            homeVM.markNotCompleted(request.id)
+                                                        }
+                                                    ) {
+                                                        Text("Not Completed")
+                                                    }
                                                 }
                                             }
-                                        }
 
-                                        if (request.receiverCompleted) {
-                                            Text(
-                                                "Donation Completed ✅",
-                                                color = Color(0xFF2E7D32),
-                                                modifier = Modifier.padding(top = 6.dp)
-                                            )
-                                        }
+                                            if (request.receiverCompleted) {
 
-                                        if (request.status == "pending") {
-                                            Button(
-                                                onClick = {
-                                                    homeVM.cancelRequest(request.id)
-                                                },
-                                                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                                                modifier = Modifier.padding(top = 8.dp)
-                                            ) {
-                                                Text("Cancel Request")
+                                                Text(
+                                                    "Donation Completed ✅",
+                                                    color = Color(0xFF2E7D32),
+                                                    modifier = Modifier.padding(top = 6.dp)
+                                                )
+                                            }
+
+                                            if (request.status == "pending") {
+
+                                                Button(
+                                                    onClick = {
+                                                        homeVM.cancelRequest(request.id)
+                                                    },
+
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = Color.Red
+                                                    ),
+
+                                                    modifier = Modifier.padding(top = 8.dp)
+                                                ) {
+                                                    Text("Cancel Request")
+                                                }
                                             }
                                         }
                                     }
@@ -477,8 +573,8 @@ fun HomeScreen(
                             }
                         }
                     }
-
                 }
+
             }
         }
 

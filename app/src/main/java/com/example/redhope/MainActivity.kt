@@ -39,13 +39,3 @@ class MainActivity : ComponentActivity() {
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    RedHopeTheme {
-        LoginScreen( onLoginClick = {
-            // Just print dummy values in Preview (won’t actually run)
-            println("Login clicked ")
-        }, onGoogleLogin = {println("Google clicked")}, onSignUpClick = {println("Signup clicked")})
-    }
-}

@@ -69,8 +69,6 @@ class ProfileViewModel(application: Application): AndroidViewModel(application) 
                     fullName = document.getString("fullName") ?: "",
                     phone = document.getString("phone") ?: "",
                     bloodGroup = document.getString("bloodGroup") ?: "",
-
-
                     isAvailable = document.getBoolean("isAvailable") ?: false,
                     lastDisabledAt = document.getLong("lastDisabledAt"),
                     cooldownHours = (document.getLong("cooldownHours") ?: 6L).toInt()
