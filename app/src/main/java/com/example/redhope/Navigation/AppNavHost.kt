@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.redhope.ui.theme.ui.BloodCompatibilityScreen
 
 import com.example.redhope.ui.theme.ui.CampScreen
 import com.example.redhope.ui.theme.ui.DonationHistoryScreen
@@ -33,6 +34,7 @@ sealed class Screen(val route: String){
     object DonationHistoryScreen : Screen("Donation History")
     object EmailVerificationScreen : Screen("EmailVerification")
     object CampScreen : Screen("CampScreen")
+    object BloodCompatibilityScreen : Screen("Blood Compatibility")
 
 
 
@@ -133,11 +135,19 @@ fun AppNavHost(navHostController: NavHostController){
 
             }, onCamp = {
                     navHostController.navigate(Screen.CampScreen.route)
-            })
+            }, onBloodCompatibility = {
+                   navHostController.navigate(Screen.BloodCompatibilityScreen.route)
+                }
+            )
 
         }
         composable(Screen.DonationHistoryScreen.route) {
             DonationHistoryScreen (
+                onBack = { navHostController.popBackStack() }
+            )
+        }
+        composable(Screen.BloodCompatibilityScreen.route) {
+            BloodCompatibilityScreen  (
                 onBack = { navHostController.popBackStack() }
             )
         }

@@ -12,7 +12,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -86,7 +87,9 @@ fun HomeScreen(
     onFindDonor: () -> Unit,
     onCamp:()->Unit,
     onHistoryClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onBloodCompatibility:()->Unit
+
 
 ) {
 
@@ -471,7 +474,7 @@ fun HomeScreen(
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            // Second Row
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -493,6 +496,78 @@ fun HomeScreen(
                                     modifier = Modifier.weight(1f)
                                 )
                             }
+
+                            Spacer(modifier = Modifier.height(18.dp))
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp),
+
+                                shape = RoundedCornerShape(22.dp),
+
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.background
+                                ),
+
+                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+
+                                onClick = onBloodCompatibility
+                            ) {
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 18.dp, vertical = 20.dp),
+
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+
+                                    Image(
+                                        painter = painterResource(
+                                            com.example.redhope.R.drawable.bloodcompatibility
+                                        ),
+                                        contentDescription = "Blood Compatibility",
+
+                                        modifier = Modifier
+                                            .size(70.dp)
+                                    )
+
+                                    Spacer(modifier = Modifier.width(18.dp))
+
+
+                                    Column(
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+
+                                        Text(
+                                            text = "Blood Compatibility",
+                                            color = MaterialTheme.colorScheme.onBackground,
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+
+                                        Spacer(modifier = Modifier.height(4.dp))
+
+                                        Text(
+                                            text = "Check which blood groups can donate.",
+                                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                                            fontSize = 13.sp
+                                        )
+                                    }
+
+
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowRight,
+                                        contentDescription = "Open",
+                                        tint = Color.Gray,
+                                        modifier = Modifier.size(30.dp)
+                                    )
+                                }
+                            }
+
+
+
 
                             Spacer(modifier = Modifier.height(24.dp))
 
