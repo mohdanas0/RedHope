@@ -9,6 +9,7 @@ import android.location.LocationManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -42,13 +44,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.redhope.R
 import com.example.redhope.common.BloodGroupDropdown
 import com.example.redhope.common.DonorCard
 import com.example.redhope.modal.FindDonorUiState
@@ -65,12 +70,8 @@ fun FindDonorScreen(
 ) {
 
     val viewModel: FindDonorViewModel = viewModel()
-
-
     val uiState by viewModel.uiState.collectAsState()
     val location by locationVM.location.collectAsState()
-
-
     val context = LocalContext.current
 
     fun isLocationEnabled(): Boolean {
@@ -80,17 +81,12 @@ fun FindDonorScreen(
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
-
-
-
-
     LaunchedEffect(location) {
         location?.let {
             viewModel.setUserLocation(it.first, it.second)
         }
     }
-
-
+    
     val showEmptyMessage =
         uiState.selectedBloodGroup.isNotEmpty() &&
                 !uiState.isLoading &&
@@ -168,10 +164,18 @@ fun FindDonorScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
+                        Image(
+                            painter = painterResource(R.drawable.nodonoricon),
+                            contentDescription = "Email",
+                            modifier = Modifier.size(120.dp),
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
                         Text(
                             text = "No donors found within 20 km",
                             style = MaterialTheme.typography.titleMedium,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onBackground
                         )
 
                         Spacer(modifier = Modifier.height(6.dp))
@@ -186,7 +190,7 @@ fun FindDonorScreen(
                         Text(
                             text = "Try again later or check nearby blood banks",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 }

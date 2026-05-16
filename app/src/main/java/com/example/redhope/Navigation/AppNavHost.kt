@@ -1,14 +1,15 @@
 package com.example.redhope.Navigation
 
-import androidx.compose.foundation.gestures.ScrollableState
+
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
+
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
+
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
+
+import com.example.redhope.ui.theme.ui.CampScreen
 import com.example.redhope.ui.theme.ui.DonationHistoryScreen
 import com.example.redhope.ui.theme.ui.EmailVerificationScreen
 import com.example.redhope.ui.theme.ui.FindDonorScreen
@@ -18,7 +19,7 @@ import com.example.redhope.ui.theme.ui.ProfileScreen
 import com.example.redhope.ui.theme.ui.SignUpScreen
 import com.example.redhope.ui.theme.ui.SplashScreen
 import com.example.redhope.viewModel.LocationViewModel
-import com.google.firebase.Firebase
+
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -31,22 +32,9 @@ sealed class Screen(val route: String){
     object FindDonorScreen : Screen("Find Donor")
     object DonationHistoryScreen : Screen("Donation History")
     object EmailVerificationScreen : Screen("EmailVerification")
+    object CampScreen : Screen("CampScreen")
 
 
-//    object FindDonorScreen : Screen(
-//        "find_donor_result/{bloodGroup}/{city}?pincode={pincode}&state={state}"
-//    ) {
-//        fun createRoute(
-//            bloodGroup: String,
-//            city: String,
-//            pincode: String?,
-//            state: String?
-//        ): String {
-//            return "find_donor_result/$bloodGroup/$city" +
-//                    "?pincode=${pincode ?: ""}" +
-//                    "&state=${state ?: ""}"
-//        }
-//    }
 
 }
 
@@ -70,7 +58,7 @@ fun AppNavHost(navHostController: NavHostController){
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 },
-                onNavigateToVerification = {   // 🔥 NEW
+                onNavigateToVerification = {
                     navHostController.navigate(Screen.EmailVerificationScreen.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
@@ -109,6 +97,9 @@ fun AppNavHost(navHostController: NavHostController){
                     navHostController.navigate(Screen.Home.route) {
                         popUpTo(Screen.SignUp.route) { inclusive = true }
                     }
+                },
+                onBack = {
+                    navHostController.popBackStack()
                 }
             )
         }
@@ -140,8 +131,8 @@ fun AppNavHost(navHostController: NavHostController){
             }, onHistoryClick = {
                 navHostController.navigate(Screen.DonationHistoryScreen.route)
 
-            }, onEmergencyClick = {
-
+            }, onCamp = {
+                    navHostController.navigate(Screen.CampScreen.route)
             })
 
         }
@@ -161,39 +152,9 @@ fun AppNavHost(navHostController: NavHostController){
             })
         }
 
-//        composable(
-//            route = Screen.FindDonorScreen.route,
-//            arguments = listOf(
-//                navArgument("bloodGroup") { type = NavType.StringType },
-//                navArgument("city") { type = NavType.StringType },
-//                navArgument("pincode") {
-//                    type = NavType.StringType
-//                    nullable = true
-//                    defaultValue = null
-//                },
-//                navArgument("state") {
-//                    type = NavType.StringType
-//                    nullable = true
-//                    defaultValue = null
-//                }
-//            )
-//        ) { backStackEntry ->
-//
-//            val bloodGroup = backStackEntry.arguments?.getString("bloodGroup")!!
-//            val city = backStackEntry.arguments?.getString("city")!!
-//            val pincode = backStackEntry.arguments?.getString("pincode")
-//            val state = backStackEntry.arguments?.getString("state")
-//
-//            FindDonorScreen(
-//                query = FindDonorQuery(
-//                    bloodGroup = bloodGroup,
-//                    city = city,
-//                    pincode = pincode,
-//                    state = state
-//                ),
-//                onBack = { navHostController.popBackStack() }
-//            )
-//        }
+        composable(Screen.CampScreen.route){
+            CampScreen( onBack = { navHostController.popBackStack() })
+        }
 
 
 

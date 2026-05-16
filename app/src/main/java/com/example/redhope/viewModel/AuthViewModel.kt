@@ -11,6 +11,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
+
+val passwordPattern =
+    Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#\$%^&+=!]).{8,}$")
 class AuthViewModel : ViewModel(){
 
     private val auth = FirebaseAuth.getInstance()
@@ -43,8 +46,10 @@ class AuthViewModel : ViewModel(){
             valid = false
         }
 
-        if (state.password.length < 6) {
-            state = state.copy(passwordError = "Password must be at least 6 characters")
+        if (!passwordPattern.matches(state.password)) {
+            state = state.copy(
+                passwordError = "Password must contain uppercase, lowercase, number, special character and be at least 8 characters"
+            )
             valid = false
         }
 

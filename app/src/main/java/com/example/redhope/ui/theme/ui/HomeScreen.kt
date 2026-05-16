@@ -75,6 +75,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 
 import com.example.redhope.util.LocationForegroundService
 import com.example.redhope.util.openNearbyBloodBanks
+import com.example.redhope.viewModel.CampViewModel
 import com.example.redhope.viewModel.LocationViewModel
 
 
@@ -83,7 +84,7 @@ fun HomeScreen(
     locationVM: LocationViewModel,
     onLogout: () -> Unit,
     onFindDonor: () -> Unit,
-    onEmergencyClick: () -> Unit,
+    onCamp:()->Unit,
     onHistoryClick: () -> Unit,
     onProfileClick: () -> Unit
 
@@ -93,6 +94,7 @@ fun HomeScreen(
     val name = homeVM.userName.value
     val profileVM: ProfileViewModel = viewModel()
     val profileUiState by profileVM.uiState.collectAsState()
+    val campViewModel : CampViewModel = viewModel()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -361,7 +363,7 @@ fun HomeScreen(
                             shape = RoundedCornerShape(24.dp),
 
                             colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFF18181B)
+                                containerColor = MaterialTheme.colorScheme.background
                             ),
 
                             elevation = CardDefaults.cardElevation(
@@ -384,7 +386,7 @@ fun HomeScreen(
 
                                     Text(
                                         text = "Welcome Back 👋",
-                                        color = Color.Gray,
+                                        color = MaterialTheme.colorScheme.onBackground,
                                         fontSize = 14.sp
                                     )
 
@@ -392,7 +394,7 @@ fun HomeScreen(
 
                                     Text(
                                         text = name ?: "Loading...",
-                                        color = Color.White,
+                                        color = MaterialTheme.colorScheme.onBackground,
                                         fontSize = 28.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -401,7 +403,7 @@ fun HomeScreen(
 
                                     Text(
                                         text = "Ready to donate today?",
-                                        color = Color.LightGray,
+                                        color = MaterialTheme.colorScheme.onBackground,
                                         fontSize = 15.sp
                                     )
                                 }
@@ -443,39 +445,54 @@ fun HomeScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(horizontal = 16.dp),
-
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
 
-                            ButtonCard(
-                                icon = com.example.redhope.R.drawable.find,
-                                title = "Find Donor",
-                                onClick = onFindDonor,
-                                modifier = Modifier
-                                    .fillMaxWidth(0.45f)
-                            )
+                            // First Row
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+
+                                ButtonCard(
+                                    icon = com.example.redhope.R.drawable.find,
+                                    title = "Find Donor",
+                                    onClick = onFindDonor,
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                                ButtonCard(
+                                    icon = com.example.redhope.R.drawable.file,
+                                    title = "Donation",
+                                    onClick = onHistoryClick,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            ButtonCard(
-                                icon = com.example.redhope.R.drawable.file,
-                                title = "Donation",
-                                onClick = onHistoryClick,
-                                modifier = Modifier
-                                    .fillMaxWidth(0.45f)
-                            )
+                            // Second Row
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                                ButtonCard(
+                                    icon = com.example.redhope.R.drawable.cityscape,
+                                    title = "Upcoming Blood Camp",
+                                    onClick = onCamp,
+                                    modifier = Modifier.weight(1f)
+                                )
 
-                            ButtonCard(
-                                icon = com.example.redhope.R.drawable.nearby,
-                                title = "Nearby BloodBanks",
-                                onClick = {
-                                    openNearbyBloodBanks(context)
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth(0.45f)
-                            )
+                                ButtonCard(
+                                    icon = com.example.redhope.R.drawable.nearby,
+                                    title = "Nearby BloodBanks",
+                                    onClick = {
+                                        openNearbyBloodBanks(context)
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
 
                             Spacer(modifier = Modifier.height(24.dp))
 

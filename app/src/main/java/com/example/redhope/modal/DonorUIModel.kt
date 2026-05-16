@@ -9,5 +9,4 @@ data class DonorUIModel(
     val phone: String,
     val distanceKm: Double,
     val locationUpdatedAt: Timestamp? = null
-
 )
