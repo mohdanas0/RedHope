@@ -8,7 +8,7 @@ data class DonationRequest(
     val receiverName: String = "",
     val bloodGroup: String = "",
 
-    val status: String = "pending", // pending / accepted / rejected / completed
+    val status: String = "pending",
     val donorAccepted: Boolean = false,
 
     val donorCompleted: Boolean = false,

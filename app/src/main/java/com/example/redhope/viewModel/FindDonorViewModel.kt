@@ -134,32 +134,43 @@ class FindDonorViewModel : ViewModel() {
         return earthRadius * c
     }
 
-    fun sendDonationRequest(
-        donorId: String,
-        donorName: String,
-        bloodGroup: String
-    ) {
+fun sendDonationRequest(
+    donorId: String,
+    donorName: String,
+    bloodGroup: String
+) {
 
-        val currentUser = auth.currentUser ?: return
+    val currentUser = auth.currentUser ?: return
 
-        val request = hashMapOf(
-            "donorId" to donorId,
-            "donorName" to donorName,
+    db.collection("users")
+        .document(currentUser.uid)
+        .get()
+        .addOnSuccessListener { document ->
 
-            "receiverId" to currentUser.uid,
-            "receiverName" to (currentUser.displayName ?: "User"),
+            val receiverName =
+                document.getString("fullName") ?: "Unknown"
 
-            "bloodGroup" to bloodGroup,
+            val request = hashMapOf(
 
-            "status" to "pending",
-            "donorAccepted" to false,
-            "donorCompleted" to false,
-            "receiverCompleted" to false,
+                "donorId" to donorId,
+                "donorName" to donorName,
 
-            "createdAt" to Timestamp.now()
-        )
+                "receiverId" to currentUser.uid,
+                "receiverName" to receiverName,
 
-        db.collection("donation_requests")
-            .add(request)
-    }
+                "bloodGroup" to bloodGroup,
+
+                "status" to "pending",
+
+                "donorAccepted" to false,
+                "donorCompleted" to false,
+                "receiverCompleted" to false,
+
+                "createdAt" to Timestamp.now()
+            )
+
+            db.collection("donation_requests")
+                .add(request)
+        }
+}
 }
