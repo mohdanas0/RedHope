@@ -8,7 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import com.example.redhope.R   // ✅ सही import
+import com.example.redhope.R
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable

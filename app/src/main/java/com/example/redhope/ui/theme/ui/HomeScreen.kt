@@ -506,7 +506,7 @@ fun HomeScreen(
                                 shape = RoundedCornerShape(22.dp),
 
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.background
+                                    containerColor = MaterialTheme.colorScheme.surface
                                 ),
 
                                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),

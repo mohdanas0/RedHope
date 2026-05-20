@@ -178,38 +178,6 @@ fun saveHistory(requestId: String) {
             }
     }
 
-//    fun checkAndSaveHistory(requestId: String) {
-//
-//        val db = FirebaseFirestore.getInstance()
-//
-//        db.collection("donation_requests")
-//            .document(requestId)
-//            .get()
-//            .addOnSuccessListener { doc ->
-//
-//                val request = doc.toObject(DonationRequest::class.java) ?: return@addOnSuccessListener
-//
-//                if (request.donorCompleted && request.receiverCompleted && request.status != "completed") {
-//
-//                    // ✅ Save history
-//                    val history = hashMapOf(
-//                        "donorId" to request.donorId,
-//                        "receiverId" to request.receiverId,
-//                        "donorName" to request.donorName,
-//                        "receiverName" to request.receiverName,
-//                        "bloodGroup" to request.bloodGroup,
-//                        "completedAt" to Timestamp.now()
-//                    )
-//
-//                    db.collection("donation_history").add(history)
-//
-//                    // ✅ mark request completed
-//                    db.collection("donation_requests")
-//                        .document(requestId)
-//                        .update("status", "completed")
-//                }
-//            }
-//    }
 
 
 

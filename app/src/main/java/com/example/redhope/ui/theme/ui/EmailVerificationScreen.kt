@@ -111,7 +111,7 @@ fun EmailVerificationScreen(
 
                     Spacer(modifier = Modifier.height(30.dp))
 
-                    // ✅ Check verification button
+
                     AuthenticationButton(
                         onClick = {
                             isChecking = true
@@ -136,7 +136,7 @@ fun EmailVerificationScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // 🔁 Resend email
+
                     Text(
                         text = "Resend Email",
                         color = MaterialTheme.colorScheme.primary,

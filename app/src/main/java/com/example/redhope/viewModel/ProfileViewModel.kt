@@ -2,21 +2,16 @@ package com.example.redhope.viewModel
 
 import android.app.Application
 import android.util.Log
-
 import androidx.lifecycle.AndroidViewModel
-
-
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.redhope.modal.ProfileUiState
 import com.example.redhope.util.CooldownWorker
-
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import com.google.firebase.Timestamp
 import java.util.concurrent.TimeUnit
 
